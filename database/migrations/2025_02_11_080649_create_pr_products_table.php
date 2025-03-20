@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('pr_products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pr_id')->constrained('prs')->onDelete('cascade');
-            $table->unsignedBigInteger('product_id');
             $table->string('product_name');
             $table->integer('quantity');
             $table->decimal('buying_price', 10, 2);

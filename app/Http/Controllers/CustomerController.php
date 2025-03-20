@@ -13,11 +13,6 @@ class CustomerController extends Controller
         return view('pages.customers.index', compact('customers'));
     }
 
-    public function create()
-    {
-        return view('pages.customers.create');
-    }
-
     public function store(Request $request)
     {
         $request->validate([

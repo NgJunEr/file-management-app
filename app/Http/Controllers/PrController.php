@@ -6,13 +6,23 @@ use App\Models\Pr;
 use App\Models\Supplier;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PrController extends Controller
 {
     public function index()
     {
-        $prs = Pr::with(['supplier', 'customer', 'products'])->get();
-        return view('prs.index', compact('prs'));
+        $prs = Pr::with(['supplier', 'customer', 'products'])->orderBy('date', 'desc')->get();
+        $suppliers = Supplier::all();
+        $customers = Customer::all();
+        
+        // Pass data as JSON for JavaScript
+        return view('pages.purchase-requisitions.index', [
+            'prs' => $prs,
+            'suppliers' => $suppliers,
+            'customers' => $customers,
+            'prs_json' => $prs->toJson()
+        ]);
     }
 
     public function create()
@@ -31,21 +41,27 @@ class PrController extends Controller
             'customer_po' => 'required|string|max:255',
             'note' => 'nullable|string',
             'products' => 'required|array',
-            'products.*.product_id' => 'required|integer',
-            'products.*.quantity' => 'required|integer',
-            'products.*.buying_price' => 'required|numeric',
-            'products.*.selling_price' => 'required|numeric',
+            'products.*.product_name' => 'required|string|max:255', // Ensure product_name is required
+            'products.*.quantity' => 'required|integer|min:1', // Ensure quantity is a positive integer
+            'products.*.buying_price' => 'required|numeric|min:0', // Ensure buying_price is non-negative
+            'products.*.selling_price' => 'required|numeric|min:0', // Ensure selling_price is non-negative
         ]);
 
+        // Create the PR
         $pr = Pr::create($request->only(['date', 'supplier_id', 'customer_id', 'customer_po', 'note']));
 
+        // Add products to the PR
         foreach ($request->products as $product) {
-            $pr->products()->create($product);
+            $pr->products()->create([
+                'product_name' => $product['product_name'],
+                'quantity' => $product['quantity'],
+                'buying_price' => $product['buying_price'],
+                'selling_price' => $product['selling_price'],
+            ]);
         }
 
         return redirect()->route('prs.index')->with('success', 'PR created successfully.');
     }
-
 
     public function show(Pr $pr)
     {
@@ -70,14 +86,13 @@ class PrController extends Controller
             'customer_po' => 'required|string|max:255',
             'note' => 'nullable|string',
             'products' => 'required|array',
-            'products.*.product_id' => 'required|integer',
-            'products.*.product_name' => 'required|string|max:255',
-            'products.*.quantity' => 'required|integer',
-            'products.*.buying_price' => 'required|numeric',
-            'products.*.selling_price' => 'required|numeric',
+            'products.*.product_name' => 'required|string|max:255', // Ensure product_name is required
+            'products.*.quantity' => 'required|integer|min:1', // Ensure quantity is a positive integer
+            'products.*.buying_price' => 'required|numeric|min:0', // Ensure buying_price is non-negative
+            'products.*.selling_price' => 'required|numeric|min:0', // Ensure selling_price is non-negative
         ]);
 
-        // Update PR
+        // Update the PR
         $pr->update($request->only(['date', 'supplier_id', 'customer_id', 'customer_po', 'note']));
 
         // Delete existing products
@@ -85,7 +100,12 @@ class PrController extends Controller
 
         // Add new products
         foreach ($request->products as $product) {
-            $pr->products()->create($product);
+            $pr->products()->create([
+                'product_name' => $product['product_name'],
+                'quantity' => $product['quantity'],
+                'buying_price' => $product['buying_price'],
+                'selling_price' => $product['selling_price'],
+            ]);
         }
 
         return redirect()->route('prs.index')->with('success', 'PR updated successfully.');
@@ -95,5 +115,35 @@ class PrController extends Controller
     {
         $pr->delete();
         return redirect()->route('prs.index')->with('success', 'PR deleted successfully.');
+    }
+
+    public function exportSQL()
+    {
+        return new StreamedResponse(function () {
+            // Get all PRs with relationships
+            $prs = Pr::with(['supplier', 'customer', 'products'])->get();
+
+            // Open output stream
+            $handle = fopen('php://output', 'w');
+
+            // Write headers
+            fwrite($handle, "-- SUPPLIERS --\n");
+            foreach ($prs->pluck('supplier')->unique() as $supplier) {
+                fwrite($handle, "INSERT INTO suppliers (id, name, contact, note) VALUES ("
+                    . "$supplier->id, "
+                    . "'" . addslashes($supplier->name) . "', "
+                    . "'" . addslashes($supplier->contact) . "', "
+                    . ($supplier->note ? "'" . addslashes($supplier->note) . "'" : "NULL")
+                    . ");\n");
+            }
+
+            // Similar blocks for customers, prs, and products
+            // ... (rest of the SQL generation logic)
+
+            fclose($handle);
+        }, 200, [
+            'Content-Type' => 'text/sql',
+            'Content-Disposition' => 'attachment; filename="pr_export.sql"',
+        ]);
     }
 }

@@ -25,9 +25,10 @@ Route::middleware('auth')->group(function () {
 
     // Supplier routes
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
-    Route::post('/suppliers', [SupplierController::class, 'create'])->name('suppliers.create');
+    Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
     Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
     Route::get('/suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
+    Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
     Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 
     // Customer routes
@@ -40,9 +41,13 @@ Route::middleware('auth')->group(function () {
     
     // Purchase Requisition (PR) routes
     Route::get('/prs', [PrController::class, 'index'])->name('prs.index');
+    Route::post('/prs', [PrController::class, 'store'])->name('prs.store');
     Route::get('/prs/{pr}', [PrController::class, 'show'])->name('prs.show');
     Route::get('/prs/{pr}/edit', [PrController::class, 'edit'])->name('prs.edit');
+    Route::put('/prs/{pr}', [PrController::class, 'update'])->name('prs.update');
     Route::delete('/prs/{pr}', [PrController::class, 'destroy'])->name('prs.destroy');
+
+    Route::post('/prs/export-sql', [PrController::class, 'exportSQL'])->name('prs.export-sql');
 
 });
 
