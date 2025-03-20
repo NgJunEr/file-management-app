@@ -36,8 +36,8 @@
                             <th class="px-6 py-3">Selling Price</th>
                             <th class="px-6 py-3">Note</th>
                             <th class="px-6 py-3">Actions</th>
-                            <!--<th class="hidden">Supplier Contact</th>-->
-                            <!--<th class="hidden">Customer Contact</th>-->
+                            <th class="hidden">Supplier Contact</th>
+                            <th class="hidden">Customer Contact</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -59,8 +59,8 @@
                                 <td class="px-6 py-4">{{ Str::limit($pr->note, 1000) }}</td>
 
                                 <!-- Cus & Sup Information -->
-                                <!--<td class="hidden">{{ $pr->supplier->name }}</td> -->
-                                <!--<td class="hidden">{{ $pr->customer->company_name }}</td> -->
+                                <td class="hidden">{{ $pr->supplier->contact }}</td>
+                                <td class="hidden">{{ $pr->customer->contact_name }}</td>
                                 
                                 <!-- Actions -->
                                 <td class="px-6 py-4 flex space-x-2">

@@ -147,12 +147,77 @@
                         columnDelimiter: ","
                     })
                 })
+
+
                 document.getElementById("export-sql").addEventListener("click", () => {
-                    simpleDatatables.exportSQL(table, {
-                        download: true,
-                        tableName: "export_table"
-                    })
-                })
+                    let sqlStatements = generateSQLFromTable();
+                    downloadSQLFile(sqlStatements, "export_data.sql");
+                });
+
+                function generateSQLFromTable() {
+                    let sql = "";
+
+                    // Get the table rows
+                    let rows = document.querySelectorAll("#export-table tbody tr");
+
+                    let prData = new Set();
+                    let prProductData = [];
+                    let supplierData = new Set();
+                    let customerData = new Set();
+
+                    rows.forEach(row => {
+                        let columns = row.querySelectorAll("td");
+
+                        let pr_id = columns[0].innerText.trim();
+                        let date = columns[1].innerText.trim();
+                        let supplier_name = columns[2].innerText.trim();
+                        let customer_name = columns[3].innerText.trim();
+                        let po_number = columns[4].innerText.trim();
+                        let product_name = columns[5].innerText.trim();
+                        let quantity = columns[6].innerText.trim();
+                        let buying_price = columns[7].innerText.replace('$', '').trim();
+                        let selling_price = columns[8].innerText.replace('$', '').trim();
+                        let note = columns[9].innerText.trim();
+                        let contact = columns[10].innerText.trim();
+                        let contact_name = columns[11].innerText.trim();
+
+                        let created_at = new Date().toISOString().slice(0, 19).replace("T", " ");
+                        let updated_at = created_at;
+
+                        // Store PR information (avoid duplicates)
+                        prData.add(`(${pr_id}, '${date}', (SELECT id FROM suppliers WHERE name='${supplier_name}' LIMIT 1), (SELECT id FROM customers WHERE company_name='${customer_name}' LIMIT 1), '${po_number}', '${note}', '${created_at}', '${updated_at}')`);
+
+                        // Store PR Product Information
+                        prProductData.push(`(${pr_id}, '${product_name}', ${quantity}, ${buying_price}, ${selling_price}, '${created_at}', '${updated_at}')`);
+
+                        // Store Supplier Information (avoid duplicates)
+                        supplierData.add(`('${supplier_name}', '${contact}', NULL, '${created_at}', '${updated_at}')`);
+
+                        // Store Customer Information (avoid duplicates)
+                        customerData.add(`('${customer_name}', '${contact_name}', NULL, '${created_at}', '${updated_at}')`);
+                    });
+
+                    // Generate SQL statements
+                    sql += `INSERT INTO suppliers (name, contact, note, created_at, updated_at) VALUES \n${Array.from(supplierData).join(",\n")};\n\n`;
+                    sql += `INSERT INTO customers (company_name, contact_name, note, created_at, updated_at) VALUES \n${Array.from(customerData).join(",\n")};\n\n`;
+                    sql += `INSERT INTO prs (id, date, supplier_id, customer_id, customer_po, note, created_at, updated_at) VALUES \n${Array.from(prData).join(",\n")};\n\n`;
+                    sql += `INSERT INTO pr_products (pr_id, product_name, quantity, buying_price, selling_price, created_at, updated_at) VALUES \n${prProductData.join(",\n")};\n\n`;
+
+                    return sql;
+                }
+
+                function downloadSQLFile(sqlContent, fileName) {
+                    let blob = new Blob([sqlContent], { type: "text/sql" });
+                    let a = document.createElement("a");
+                    a.href = URL.createObjectURL(blob);
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+
+
+
                 document.getElementById("export-txt").addEventListener("click", () => {
                     simpleDatatables.exportTXT(table, {
                         download: true
