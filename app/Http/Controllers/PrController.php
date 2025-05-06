@@ -43,6 +43,7 @@ class PrController extends Controller
             'products' => 'required|array',
             'products.*.product_name' => 'required|string|max:255', // Ensure product_name is required
             'products.*.quantity' => 'required|integer|min:1', // Ensure quantity is a positive integer
+            'products.*.uom' => 'required|string|max:255', // Ensure uom is required
             'products.*.buying_price' => 'required|numeric|min:0', // Ensure buying_price is non-negative
             'products.*.selling_price' => 'required|numeric|min:0', // Ensure selling_price is non-negative
         ]);
@@ -55,6 +56,7 @@ class PrController extends Controller
             $pr->products()->create([
                 'product_name' => $product['product_name'],
                 'quantity' => $product['quantity'],
+                'uom' => $product['uom'],
                 'buying_price' => $product['buying_price'],
                 'selling_price' => $product['selling_price'],
             ]);
@@ -88,6 +90,7 @@ class PrController extends Controller
             'products' => 'required|array',
             'products.*.product_name' => 'required|string|max:255', // Ensure product_name is required
             'products.*.quantity' => 'required|integer|min:1', // Ensure quantity is a positive integer
+            'products.*.uom' => 'required|string|max:255', // Ensure moq is required
             'products.*.buying_price' => 'required|numeric|min:0', // Ensure buying_price is non-negative
             'products.*.selling_price' => 'required|numeric|min:0', // Ensure selling_price is non-negative
         ]);
@@ -103,6 +106,7 @@ class PrController extends Controller
             $pr->products()->create([
                 'product_name' => $product['product_name'],
                 'quantity' => $product['quantity'],
+                'uom' => $product['uom'],
                 'buying_price' => $product['buying_price'],
                 'selling_price' => $product['selling_price'],
             ]);

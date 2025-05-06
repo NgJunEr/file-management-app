@@ -16,8 +16,9 @@ return new class extends Migration
             $table->foreignId('pr_id')->constrained('prs')->onDelete('cascade');
             $table->string('product_name');
             $table->integer('quantity');
-            $table->decimal('buying_price', 10, 2);
-            $table->decimal('selling_price', 10, 2);
+            $table->string('uom');
+            $table->decimal('buying_price', 10, 3);
+            $table->decimal('selling_price', 10, 3);
             $table->timestamps();
         });
     }

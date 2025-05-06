@@ -10,7 +10,7 @@ class PrProduct extends Model
     use HasFactory;
 
     protected $fillable = [
-        'pr_id', 'product_id','product_name', 'quantity', 'buying_price', 'selling_price'
+        'pr_id', 'product_id','product_name', 'quantity', 'uom', 'buying_price', 'selling_price'
     ];
 
     public function pr()

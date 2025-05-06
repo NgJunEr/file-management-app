@@ -32,6 +32,7 @@
                             <th class="px-6 py-3">PO Number</th>
                             <th class="px-6 py-3">Product Name</th>
                             <th class="px-6 py-3">Quantity</th>
+                            <th class="px-6 py-3">UOM</th>
                             <th class="px-6 py-3">Buying Price</th>
                             <th class="px-6 py-3">Selling Price</th>
                             <th class="px-6 py-3">Note</th>
@@ -54,8 +55,9 @@
                                 <!-- Product Information -->
                                 <td class="px-6 py-4">{{ $product->product_name }}</td>
                                 <td class="px-6 py-4">{{ $product->quantity }}</td>
-                                <td class="px-6 py-4">${{ number_format($product->buying_price, 2) }}</td>
-                                <td class="px-6 py-4">${{ number_format($product->selling_price, 2) }}</td>
+                                <td class="px-6 py-4">{{ $product->uom }}</td>
+                                <td class="px-6 py-4">${{ number_format($product->buying_price, 3) }}</td>
+                                <td class="px-6 py-4">${{ number_format($product->selling_price, 3) }}</td>
                                 <td class="px-6 py-4">{{ Str::limit($pr->note, 1000) }}</td>
 
                                 <!-- Cus & Sup Information -->
@@ -144,9 +146,10 @@
                                     <div id="product-fields" class="space-y-4">
                                         <div class="product-row flex gap-4 items-center">
                                             <input type="text" name="products[0][product_name]" placeholder="Product Name" class="flex-1" required>
-                                            <input type="number" name="products[0][quantity]" placeholder="Qty" class="w-24" required>
-                                            <input type="number" step="0.01" name="products[0][buying_price]" placeholder="Buy Price" class="w-32" required>
-                                            <input type="number" step="0.01" name="products[0][selling_price]" placeholder="Sell Price" class="w-32" required>
+                                            <input type="number" name="products[0][quantity]" placeholder="Qty" class="w-20" required>
+                                            <input type="text" name="products[0][uom]" placeholder="UOM" class="w-20" required>
+                                            <input type="number" step="0.001" name="products[0][buying_price]" placeholder="Buy Price" class="w-32" required>
+                                            <input type="number" step="0.001" name="products[0][selling_price]" placeholder="Sell Price" class="w-32" required>
                                             <button type="button" class="remove-product text-red-500 hover:text-red-700">×</button>
                                         </div>
                                     </div>
@@ -289,9 +292,10 @@
             newRow.className = 'product-row flex gap-4 items-center mt-2';
             newRow.innerHTML = `
                 <input type="text" name="products[${productCount}][product_name]" placeholder="Product Name" class="flex-1" required>
-                <input type="number" name="products[${productCount}][quantity]" placeholder="Qty" class="w-24" required>
-                <input type="number" step="0.01" name="products[${productCount}][buying_price]" placeholder="Buy Price" class="w-32" required>
-                <input type="number" step="0.01" name="products[${productCount}][selling_price]" placeholder="Sell Price" class="w-32" required>
+                <input type="number" name="products[${productCount}][quantity]" placeholder="Qty" class="w-20" required>
+                <input type="text" name="products[${productCount}][uom]" placeholder="UOM" class="w-20" required>
+                <input type="number" step="0.001" name="products[${productCount}][buying_price]" placeholder="Buy Price" class="w-32" required>
+                <input type="number" step="0.001" name="products[${productCount}][selling_price]" placeholder="Sell Price" class="w-32" required>
                 <button type="button" class="remove-product text-red-500 hover:text-red-700">×</button>
             `;
             productFields.appendChild(newRow);
@@ -337,9 +341,10 @@
                 row.className = 'product-row flex gap-4 items-center mt-2';
                 row.innerHTML = `
                     <input type="text" name="products[${index}][product_name]" value="${product.product_name}" class="flex-1" required>
-                    <input type="number" name="products[${index}][quantity]" value="${product.quantity}" class="w-24" required>
-                    <input type="number" step="0.01" name="products[${index}][buying_price]" value="${product.buying_price}" class="w-32" required>
-                    <input type="number" step="0.01" name="products[${index}][selling_price]" value="${product.selling_price}" class="w-32" required>
+                    <input type="number" name="products[${index}][quantity]" value="${product.quantity}" class="w-20" required>
+                    <input type="text" name="products[${index}][uom]" value="${product.uom}" class="w-20" required>
+                    <input type="number" step="0.001" name="products[${index}][buying_price]" value="${product.buying_price}" class="w-32" required>
+                    <input type="number" step="0.001" name="products[${index}][selling_price]" value="${product.selling_price}" class="w-32" required>
                     <button type="button" class="remove-product text-red-500 hover:text-red-700">×</button>
                 `;
                 editProductFields.appendChild(row);
@@ -362,9 +367,10 @@
             newRow.className = 'product-row flex gap-4 items-center mt-2';
             newRow.innerHTML = `
                 <input type="text" name="products[${editProductCount}][product_name]" placeholder="Product Name" class="flex-1" required>
-                <input type="number" name="products[${editProductCount}][quantity]" placeholder="Qty" class="w-24" required>
-                <input type="number" step="0.01" name="products[${editProductCount}][buying_price]" placeholder="Buy Price" class="w-32" required>
-                <input type="number" step="0.01" name="products[${editProductCount}][selling_price]" placeholder="Sell Price" class="w-32" required>
+                <input type="number" name="products[${editProductCount}][quantity]" placeholder="Qty" class="w-20" required>
+                <input type="text" name="products[${editProductCount}][uom]" placeholder="UOM" class="w-20" required>
+                <input type="number" step="0.001" name="products[${editProductCount}][buying_price]" placeholder="Buy Price" class="w-32" required>
+                <input type="number" step="0.001" name="products[${editProductCount}][selling_price]" placeholder="Sell Price" class="w-32" required>
                 <button type="button" class="remove-product text-red-500 hover:text-red-700">×</button>
             `;
             editProductFields.appendChild(newRow);
